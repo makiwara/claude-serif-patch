@@ -1,0 +1,34 @@
+/* === local patch: Anthropic Serif 15/1.7 for Claude Code main prose ===
+ * Selectors from live inspection of /epitaxy/* route.
+ * CSS alone does NOT win against claude.ai's own utilities even at user origin,
+ * which is why snippet.js applies these inline via setProperty('important').
+ * These rules are kept here as a defence-in-depth fallback. */
+p.text-assistant-primary,
+p.text-body.text-pretty,
+li.text-assistant-primary,
+li.text-body.text-pretty,
+li.text-body,
+.epitaxy-chat-column li {
+  font-family: var(--font-serif, "Anthropic Serif", Georgia, serif) !important;
+  font-size: 15px !important;
+  line-height: 1.7 !important;
+  font-weight: 400 !important;
+}
+
+/* Keep inline code and pre monospace even inside serif-forced paragraphs/lists. */
+p.text-assistant-primary code,
+p.text-assistant-primary pre,
+p.text-body.text-pretty code,
+p.text-body.text-pretty pre,
+li.text-assistant-primary code,
+li.text-body code,
+.text-code,
+code.text-code {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace !important;
+}
+
+.epitaxy-chat-column {
+  max-width: 1000px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}

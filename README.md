@@ -2,6 +2,8 @@
 
 Restores the Anthropic-Serif patch for Claude Desktop's Claude Code tab after a software update overwrites `app.asar`.
 
+![Example: Claude Code tab with Anthropic Serif](example.jpg)
+
 ## What it does
 
 Claude Desktop renders the Claude Code tab (`/epitaxy/*` route) in Anthropic Sans 13px. This patch switches the main prose to Anthropic Serif 15 / 400 / 1.7 and caps the chat column at 1000 px. Implementation:

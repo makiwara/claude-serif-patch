@@ -40,26 +40,14 @@ Idempotent: if the patch marker is already in `mainView.js`, exits cleanly. Othe
 - `patch.mjs` — Node script that edits `mainView.js` in place
 - `snippet.css` — CSS injected into `webFrame.insertCSS(...)`
 - `snippet.js` — IIFE appended after the insertCSS statement
-- `inspect.js` — double-click element inspector (off by default)
+- `inspect.js` — standalone double-click element inspector (not included in the patch; paste manually into `mainView.js` when debugging)
 - `package.json` — declares `@electron/asar` dependency
 
 ## Element inspector
 
-When adding new selectors or debugging style issues, enable the inspector:
+`inspect.js` is a standalone IIFE that adds a yellow panel to the top-right of the Claude window. Double-click any element on the page to see 10 ancestor levels with tag, computed font-family / font-size / line-height, and class list.
 
-```bash
-~/makiwara/claude-serif-patch/patch.sh --debug
-```
-
-This adds a yellow panel in the top-right of the Claude window. Double-click any element on the page to inspect it. The panel shows 10 ancestor levels with tag, computed font-family / font-size / line-height, and class list.
-
-To return to normal (no panel), re-run without `--debug`:
-
-```bash
-~/makiwara/claude-serif-patch/patch.sh
-```
-
-To toggle the inspector on or off, reinstall Claude Desktop from the DMG first (to get a clean `app.asar`), then run `patch.sh` with or without `--debug`. The script is idempotent — it skips if the patch marker is already present, so switching modes requires a fresh base.
+To use it: extract the asar, paste the contents of `inspect.js` before the `//# sourceMappingURL` line in `mainView.js`, repack, and re-sign. Remove it by re-running `patch.sh` on a clean base (reinstall Claude from DMG first).
 
 ## When it might break
 

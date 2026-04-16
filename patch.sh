@@ -2,14 +2,7 @@
 # Restore the Anthropic-Serif patch to Claude Desktop after an update.
 # Idempotent: safe to run any number of times.
 # Prereqs: node, codesign, PlistBuddy. First run: `npm install` in this dir.
-#
-# Usage: ./patch.sh [--debug]
-#   --debug   Include the double-click element inspector (yellow panel).
-
 set -euo pipefail
-
-DEBUG_FLAG=""
-for arg in "$@"; do [ "$arg" = "--debug" ] && DEBUG_FLAG="--debug"; done
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 APP="/Applications/Claude.app"
@@ -45,7 +38,7 @@ if grep -q "=== local patch: Anthropic Serif" "$MAINVIEW"; then
 fi
 
 echo "[2/9] patching mainView.js"
-node "$HERE/patch.mjs" "$MAINVIEW" $DEBUG_FLAG
+node "$HERE/patch.mjs" "$MAINVIEW"
 
 echo "[3/9] JS syntax check"
 node --check "$MAINVIEW"

@@ -6,8 +6,7 @@
   const PROSE_FONT={
     "font-family":'var(--font-serif, "Anthropic Serif", Georgia, serif)',
     "font-size":"15px",
-    "line-height":"1.7",
-    "font-weight":"400"
+    "line-height":"1.7"
   };
   const RULES=[
     {sel:"p.text-assistant-primary, p.text-body.text-pretty",

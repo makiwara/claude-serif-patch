@@ -13,7 +13,6 @@ li.text-body,
   font-family: var(--font-serif, "Anthropic Serif", Georgia, serif) !important;
   font-size: 15px !important;
   line-height: 1.7 !important;
-  font-weight: 400 !important;
 }
 
 /* Keep inline code and pre monospace even inside serif-forced paragraphs/lists. */

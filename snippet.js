@@ -14,6 +14,8 @@
      props:PROSE_FONT,mark:"__sA"},
     {sel:"li.text-assistant-primary, li.text-body.text-pretty, li.text-body, .epitaxy-chat-column li",
      props:PROSE_FONT,mark:"__sAL"},
+    {sel:".epitaxy-chat-column :is(h1,h2,h3,h4,h5,h6)",
+     props:PROSE_FONT,mark:"__sAH"},
     {sel:".epitaxy-chat-column",
      props:{"max-width":"1000px","margin-left":"auto","margin-right":"auto"},
      mark:"__sB"}

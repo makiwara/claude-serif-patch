@@ -8,7 +8,8 @@ p.text-body.text-pretty,
 li.text-assistant-primary,
 li.text-body.text-pretty,
 li.text-body,
-.epitaxy-chat-column li {
+.epitaxy-chat-column li,
+.epitaxy-chat-column :is(h1, h2, h3, h4, h5, h6) {
   font-family: var(--font-serif, "Anthropic Serif", Georgia, serif) !important;
   font-size: 15px !important;
   line-height: 1.7 !important;

@@ -9,7 +9,7 @@
     "line-height":"1.7"
   };
   const RULES=[
-    {sel:"p.text-assistant-primary, p.text-body.text-pretty",
+    {sel:"p.text-assistant-primary",
      props:PROSE_FONT,mark:"__sA"},
     {sel:"li.text-assistant-primary, li.text-body.text-pretty, li.text-body, .epitaxy-chat-column li",
      props:PROSE_FONT,mark:"__sAL"},

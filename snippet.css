@@ -4,7 +4,6 @@
  * which is why snippet.js applies these inline via setProperty('important').
  * These rules are kept here as a defence-in-depth fallback. */
 p.text-assistant-primary,
-p.text-body.text-pretty,
 li.text-assistant-primary,
 li.text-body.text-pretty,
 li.text-body,
@@ -18,8 +17,6 @@ li.text-body,
 /* Keep inline code and pre monospace even inside serif-forced paragraphs/lists. */
 p.text-assistant-primary code,
 p.text-assistant-primary pre,
-p.text-body.text-pretty code,
-p.text-body.text-pretty pre,
 li.text-assistant-primary code,
 li.text-body code,
 .text-code,

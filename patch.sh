@@ -4,6 +4,16 @@
 # Prereqs: node, codesign, PlistBuddy. First run: `npm install` in this dir.
 set -euo pipefail
 
+DEBUG=0
+FORCE=0
+for arg in "$@"; do
+  case "$arg" in
+    --debug) DEBUG=1 ;;
+    --force) FORCE=1 ;;
+    *) echo "unknown arg: $arg" >&2; exit 2 ;;
+  esac
+done
+
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 APP="/Applications/Claude.app"
 ASAR="$APP/Contents/Resources/app.asar"
@@ -31,14 +41,20 @@ node "$ASAR_BIN" extract "$ASAR" "$WORK/app"
 MAINVIEW="$WORK/app/.vite/build/mainView.js"
 [ -f "$MAINVIEW" ] || { echo "error: mainView.js missing after extract" >&2; exit 1; }
 
-# Short-circuit: if the installed bundle already has our marker, skip everything.
-if grep -q "=== local patch: Anthropic Serif" "$MAINVIEW"; then
-  echo "       already patched — no changes needed. exiting."
-  exit 0
+# Short-circuit: if all requested injections are already present, skip everything.
+# --force bypasses this (used to re-inject with updated snippets).
+if [ "$FORCE" -eq 0 ] && grep -q "=== local patch: Anthropic Serif" "$MAINVIEW"; then
+  if [ "$DEBUG" -eq 0 ] || grep -q "=== diagnostic panel" "$MAINVIEW"; then
+    echo "       already patched — no changes needed. exiting."
+    exit 0
+  fi
 fi
 
 echo "[2/9] patching mainView.js"
-node "$HERE/patch.mjs" "$MAINVIEW"
+PATCH_ARGS=()
+[ "$DEBUG" -eq 1 ] && PATCH_ARGS+=(--debug)
+[ "$FORCE" -eq 1 ] && PATCH_ARGS+=(--force)
+node "$HERE/patch.mjs" "$MAINVIEW" ${PATCH_ARGS[@]+"${PATCH_ARGS[@]}"}
 
 echo "[3/9] JS syntax check"
 node --check "$MAINVIEW"

@@ -3,10 +3,10 @@
  * CSS alone does NOT win against claude.ai's own utilities even at user origin,
  * which is why snippet.js applies these inline via setProperty('important').
  * These rules are kept here as a defence-in-depth fallback. */
-p.text-assistant-primary,
-li.text-assistant-primary,
-li.text-body.text-pretty,
-li.text-body,
+.epitaxy-markdown p,
+.epitaxy-markdown li,
+.epitaxy-markdown :is(h1, h2, h3, h4, h5, h6),
+.epitaxy-chat-column p,
 .epitaxy-chat-column li,
 .epitaxy-chat-column :is(h1, h2, h3, h4, h5, h6) {
   font-family: var(--font-serif, "Anthropic Serif", Georgia, serif) !important;
@@ -15,10 +15,10 @@ li.text-body,
 }
 
 /* Keep inline code and pre monospace even inside serif-forced paragraphs/lists. */
-p.text-assistant-primary code,
-p.text-assistant-primary pre,
-li.text-assistant-primary code,
-li.text-body code,
+.epitaxy-markdown code,
+.epitaxy-markdown pre,
+.epitaxy-chat-column code,
+.epitaxy-chat-column pre,
 .text-code,
 code.text-code {
   font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace !important;

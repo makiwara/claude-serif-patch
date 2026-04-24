@@ -1,7 +1,12 @@
 /* === local patch: inline-style applier for Claude Code prose ===
  * claude.ai's utility classes win the author/user cascade even with
  * !important, so we write directly to element.style with 'important'
- * priority. Element inline style at !important beats any stylesheet. */
+ * priority. Element inline style at !important beats any stylesheet.
+ *
+ * Safety: coalesce all work into one rAF-scheduled scan. No attribute
+ * observer, no setInterval. The childList observer is enough — React
+ * adds/removes nodes during hydration and streaming; a single scan per
+ * frame is both sufficient and cheap. */
 (function(){
   const PROSE_FONT={
     "font-family":'var(--font-serif, "Anthropic Serif", Georgia, serif)',
@@ -9,38 +14,42 @@
     "line-height":"1.7"
   };
   const RULES=[
-    {sel:"p.text-assistant-primary",
+    {sel:".epitaxy-markdown p",
      props:PROSE_FONT,mark:"__sA"},
-    {sel:"li.text-assistant-primary, li.text-body.text-pretty, li.text-body, .epitaxy-chat-column li",
+    {sel:".epitaxy-markdown li",
      props:PROSE_FONT,mark:"__sAL"},
-    {sel:".epitaxy-chat-column :is(h1,h2,h3,h4,h5,h6)",
+    {sel:".epitaxy-markdown :is(h1,h2,h3,h4,h5,h6)",
      props:Object.assign({},PROSE_FONT,{"font-weight":"600"}),mark:"__sAH"},
-    {sel:".epitaxy-chat-column :is(strong,b), .text-body-medium.text-assistant-primary",
-     props:Object.assign({},PROSE_FONT,{"font-weight":"600"}),mark:"__sAS"},
     {sel:".epitaxy-chat-column",
      props:{"max-width":"1000px","margin-left":"auto","margin-right":"auto"},
      mark:"__sB"}
   ];
-  function applyRule(el,r){
-    if(el[r.mark])return;
-    try{for(const k in r.props)el.style.setProperty(k,r.props[k],"important");el[r.mark]=1;}catch(e){}
-  }
-  function applyAll(el){for(const r of RULES){if(el.matches&&el.matches(r.sel))applyRule(el,r);}}
-  function scan(root){try{for(const r of RULES){(root||document).querySelectorAll(r.sel).forEach(el=>applyRule(el,r));}}catch(e){}}
-  function start(){
-    scan();
-    const mo=new MutationObserver(muts=>{
-      for(const m of muts){
-        if(m.type==="childList"){
-          m.addedNodes.forEach(n=>{if(n.nodeType===1){applyAll(n);scan(n);}});
-        } else if(m.type==="attributes"&&m.target.nodeType===1){
-          const t=m.target;
-          for(const r of RULES){if(t.matches&&t.matches(r.sel)){t[r.mark]=0;applyRule(t,r);}}
+  let pending=false;
+  function scan(){
+    pending=false;
+    try{
+      for(const r of RULES){
+        const els=document.querySelectorAll(r.sel);
+        for(let i=0;i<els.length;i++){
+          const el=els[i];
+          if(el[r.mark])continue;
+          for(const k in r.props)el.style.setProperty(k,r.props[k],"important");
+          el[r.mark]=1;
         }
       }
-    });
-    mo.observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:["class"]});
-    setInterval(scan,2000);
+    }catch(e){}
+  }
+  function schedule(){
+    if(pending)return;
+    pending=true;
+    (window.requestAnimationFrame||setTimeout)(scan,16);
+  }
+  function start(){
+    try{
+      schedule();
+      const mo=new MutationObserver(schedule);
+      mo.observe(document.body,{childList:true,subtree:true});
+    }catch(e){}
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start);
   else if(document.body)start();

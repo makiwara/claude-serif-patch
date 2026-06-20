@@ -27,11 +27,11 @@ let hadInspect = working.includes(MARKER_INSPECT);
 
 if (FORCE) {
   if (hadSerif) {
-    // Strip appended CSS from inside the insertCSS template literal.
     const before = working;
+    // Strip the style-element injector block (newer, anchor-independent form).
     working = working.replace(
-      /\n\n\/\* === local patch: Anthropic Serif[\s\S]*?(`,\s*\{\s*cssOrigin\s*:\s*")user("\s*\}\)\)?;)/,
-      '$1author$2'
+      /\n?\/\* === local patch: Anthropic Serif[\s\S]*?\n\}\)\(\);\n?/,
+      ''
     );
     // Strip the following inline-style applier IIFE.
     working = working.replace(
@@ -68,26 +68,37 @@ if (needSerif) {
   const cssBody = fs.readFileSync(path.join(HERE, 'snippet.css'), 'utf8').trimEnd();
   const jsBody  = fs.readFileSync(path.join(HERE, 'snippet.js'),  'utf8').trimEnd();
 
-  // Match: <ident>||<ident>.webFrame.insertCSS(`<body>`,{cssOrigin:"<origin>"});
-  const rx = /(\w+)\|\|\(?(\w+)\.webFrame\.insertCSS\(`([\s\S]*?)`,\s*\{\s*cssOrigin\s*:\s*"(\w+)"\s*\}\)\)?;/;
-  const m = working.match(rx);
-  if (!m) {
-    console.error('[patch.mjs] could not locate webFrame.insertCSS anchor; aborting');
-    process.exit(1);
-  }
-  const [, guard, target_ident, origBody] = m;
-  const mergedBody = origBody.replace(/\n+$/, '') + '\n\n' + cssBody + '\n';
-  const rebuilt =
-    `${guard}||${target_ident}.webFrame.insertCSS(\`${mergedBody}\`,{cssOrigin:"user"});\n` +
-    jsBody + '\n';
+  // The preload no longer exposes a webFrame.insertCSS(`...`) template literal
+  // to splice into (removed upstream ~v1.14271). Inject a self-contained block
+  // at end of file instead: a <style> element carrying snippet.css (kept as a
+  // defence-in-depth fallback) plus the inline-style applier IIFE that actually
+  // wins claude.ai's cascade. Both blocks close with `})();` on their own line
+  // so the --force strip regexes above can find and remove them.
+  const styleInjector =
+    '/* === local patch: Anthropic Serif (style-element injector) === */\n' +
+    '(function(){try{\n' +
+    '  var css = ' + JSON.stringify(cssBody) + ';\n' +
+    '  function add(){try{\n' +
+    '    if(document.getElementById("__anthropicSerifPatch"))return;\n' +
+    '    var s=document.createElement("style");\n' +
+    '    s.id="__anthropicSerifPatch"; s.textContent=css;\n' +
+    '    (document.head||document.documentElement).appendChild(s);\n' +
+    '  }catch(e){}}\n' +
+    '  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",add);\n' +
+    '  else add();\n' +
+    '}catch(e){}\n' +
+    '})();\n';
 
-  const next = working.replace(rx, () => rebuilt);
-  if (next === working) {
-    console.error('[patch.mjs] serif replacement produced no change; aborting');
-    process.exit(1);
+  const block = '\n' + styleInjector + jsBody + '\n';
+
+  const smuRx = /\n\/\/# sourceMappingURL=[^\n]*\s*$/;
+  const smu = working.match(smuRx);
+  if (smu) {
+    working = working.replace(smuRx, '\n' + block + smu[0]);
+  } else {
+    working = working.replace(/\s*$/, '\n' + block + '\n');
   }
-  working = next;
-  console.log('[patch.mjs] injected serif patch');
+  console.log('[patch.mjs] injected serif patch (style-element + applier)');
 }
 
 if (needInspect) {

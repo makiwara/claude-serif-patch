@@ -24,3 +24,32 @@ code.text-code {
   margin-left: auto !important;
   margin-right: auto !important;
 }
+
+/* User turns: restore blue bubble, left-aligned (claude.ai now renders them
+ * grey + right). Scoped under .epitaxy-user-turn (the turn wrapper). */
+.epitaxy-user-turn {
+  align-self: flex-start !important;
+  margin-left: 0 !important;
+  margin-right: auto !important;
+}
+.epitaxy-user-turn > div {
+  align-items: flex-start !important;
+  margin-inline-start: 0 !important;
+  margin-left: 0 !important;
+}
+/* Neutralize right-pushing utilities anywhere in the turn (e.g. attachment
+ * rows, which sit in a different subtree than the text bubble). */
+.epitaxy-user-turn .ms-auto {
+  margin-inline-start: 0 !important;
+  margin-left: 0 !important;
+}
+.epitaxy-user-turn .items-end { align-items: flex-start !important; }
+.epitaxy-user-turn .justify-end { justify-content: flex-start !important; }
+.epitaxy-user-turn .self-end { align-self: flex-start !important; }
+.epitaxy-user-turn .bg-neutral {
+  background-color: #edf3fa !important;
+  color: #125c9c !important;
+}
+.epitaxy-user-turn .text-body {
+  color: #125c9c !important;
+}

@@ -22,7 +22,32 @@
      props:Object.assign({},PROSE_FONT,{"font-weight":"600"}),mark:"__sAH"},
     {sel:".epitaxy-transcript-width",
      props:{"max-width":"1000px","margin-left":"auto","margin-right":"auto"},
-     mark:"__sB"}
+     mark:"__sB"},
+    // User turns: restore blue bubble, left-aligned (claude.ai now renders
+    // them grey + right). .epitaxy-user-turn (turn wrapper) is the stable
+    // anchor; the bubble carries .bg-neutral, the row aligns right via
+    // items-end + ms-auto.
+    {sel:".epitaxy-user-turn",
+     props:{"align-self":"flex-start","margin-left":"0","margin-right":"auto"},
+     mark:"__sU"},
+    {sel:".epitaxy-user-turn > div",
+     props:{"align-items":"flex-start","margin-inline-start":"0","margin-left":"0"},
+     mark:"__sUR"},
+    // Neutralize any right-pushing utility anywhere in the turn (covers
+    // attachment rows, which live in a different subtree than the text row).
+    {sel:".epitaxy-user-turn .ms-auto",
+     props:{"margin-inline-start":"0","margin-left":"0"},mark:"__sUM"},
+    {sel:".epitaxy-user-turn .items-end",
+     props:{"align-items":"flex-start"},mark:"__sUE"},
+    {sel:".epitaxy-user-turn .justify-end",
+     props:{"justify-content":"flex-start"},mark:"__sUJ"},
+    {sel:".epitaxy-user-turn .self-end",
+     props:{"align-self":"flex-start"},mark:"__sUS"},
+    {sel:".epitaxy-user-turn .bg-neutral",
+     props:{"background-color":"#edf3fa","color":"#125c9c"},
+     mark:"__sUB"},
+    {sel:".epitaxy-user-turn .text-body",
+     props:{"color":"#125c9c"},mark:"__sUT"}
   ];
   let pending=false;
   function scan(){

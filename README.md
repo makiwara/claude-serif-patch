@@ -6,12 +6,17 @@ Restores the Anthropic-Serif patch for Claude Desktop's Claude Code tab after a 
 
 ## What it does
 
-Claude Desktop renders the Claude Code tab (`/epitaxy/*` route) in Anthropic Sans 13px. This patch switches the main prose to Anthropic Serif 15 / 400 / 1.7 and caps the chat column at 1000 px. Implementation:
+Claude Desktop renders the Claude Code tab (`/epitaxy/*` route) in Anthropic Sans 13px. This patch:
 
-- `snippet.css` — CSS rules injected into the existing `webFrame.insertCSS(...)` call in `mainView.js` (webview preload). Left as a fallback; does not win the cascade against claude.ai's utility classes by itself.
-- `snippet.js` — IIFE appended after the insertCSS call. Uses `element.style.setProperty(k, v, 'important')` to apply styles inline — beats any stylesheet. A `childList` MutationObserver coalesces work into one `requestAnimationFrame`-scheduled scan per frame, so React hydration and streaming don't pile up work. No attribute observer, no setInterval — both were causing the window to hang during hydration.
+- switches the main prose to Anthropic Serif 15 / 400 / 1.7 and caps the transcript column at 1000 px, and
+- restyles user messages back to a light-blue (`#edf3fa`), left-aligned bubble with blue (`#125c9c`) text — claude.ai now renders them grey and right-aligned.
 
-Selectors target `.prose` (markdown wrapper around assistant turns) and `.epitaxy-transcript-width` (the per-turn column that gets capped at 1000 px). Anthropic renamed these from `.epitaxy-markdown` / `.epitaxy-chat-column` in a claude.ai update; re-run the inspector and update them again if the prose stops picking up serif.
+Implementation:
+
+- `snippet.css` — CSS rules injected as a `<style id="__anthropicSerifPatch">` element appended to `mainView.js` (webview preload). `mainView.js` no longer exposes a `webFrame.insertCSS(...)` template literal to splice into (removed upstream ~v1.14271), so the block is self-contained. Left as a defence-in-depth fallback; does not win the cascade against claude.ai's utility classes by itself.
+- `snippet.js` — IIFE appended after the style-injector block. Uses `element.style.setProperty(k, v, 'important')` to apply styles inline — beats any stylesheet. A `childList` MutationObserver coalesces work into one `requestAnimationFrame`-scheduled scan per frame, so React hydration and streaming don't pile up work. No attribute observer, no setInterval — both were causing the window to hang during hydration.
+
+Selectors target `.prose` (markdown wrapper around assistant turns), `.epitaxy-transcript-width` (the per-turn column that gets capped at 1000 px), and `.epitaxy-user-turn` (the user-message wrapper — the bubble carries `.bg-neutral`, and right-alignment comes from `ms-auto` / `items-end` utilities that the patch neutralizes). Anthropic renamed the first two from `.epitaxy-markdown` / `.epitaxy-chat-column` in a claude.ai update; re-run the inspector and update them again if styling stops matching.
 
 ## One-time setup
 
@@ -45,8 +50,8 @@ Idempotent by default: if the patch marker is already in `mainView.js`, exits cl
 
 - `patch.sh` — driver, run this
 - `patch.mjs` — Node script that edits `mainView.js` in place
-- `snippet.css` — CSS injected into `webFrame.insertCSS(...)`
-- `snippet.js` — IIFE appended after the insertCSS statement
+- `snippet.css` — CSS injected as a `<style>` element appended to `mainView.js`
+- `snippet.js` — IIFE appended after the style-injector block
 - `inspect.js` — double-click element inspector, injected with `patch.sh --debug`
 - `package.json` — declares `@electron/asar` dependency
 
@@ -65,8 +70,8 @@ Use it when the prose stops picking up serif (Anthropic changed class names):
 
 ## When it might break
 
-- Anthropic changes the `.epitaxy-markdown` / `.epitaxy-chat-column` class names. Selectors in `snippet.js` need updating — use `--debug` to find the new ones.
-- Bundler restructures `mainView.js` so the regex in `patch.mjs` no longer matches the `webFrame.insertCSS` call. `patch.mjs` will exit non-zero without touching the bundle.
+- Anthropic changes the `.prose` / `.epitaxy-transcript-width` / `.epitaxy-user-turn` class names (or the `.bg-neutral` / `ms-auto` / `items-end` utilities the bubble relies on). Selectors in `snippet.js` need updating — use `--debug` to find the new ones.
+- Bundler restructures `mainView.js`. Injection is anchor-independent (the block is appended before the `sourceMappingURL` comment, or at end of file), so this is unlikely to break silently, but the `--force` strip regexes rely on each block ending with `})();` on its own line.
 - Electron adds per-file (not just per-asar-header) integrity verification at launch. Current Claude Desktop uses a single top-level hash, which this script updates.
 - Claude is re-signed with a newer Developer-ID and something in the app depends on the original signature (e.g. keychain items scoped to the team ID). Ad-hoc re-signing loses notarisation; any such features stop working. No workaround short of Anthropic shipping the change upstream.
 

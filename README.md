@@ -11,7 +11,7 @@ Claude Desktop renders the Claude Code tab (`/epitaxy/*` route) in Anthropic San
 - `snippet.css` — CSS rules injected into the existing `webFrame.insertCSS(...)` call in `mainView.js` (webview preload). Left as a fallback; does not win the cascade against claude.ai's utility classes by itself.
 - `snippet.js` — IIFE appended after the insertCSS call. Uses `element.style.setProperty(k, v, 'important')` to apply styles inline — beats any stylesheet. A `childList` MutationObserver coalesces work into one `requestAnimationFrame`-scheduled scan per frame, so React hydration and streaming don't pile up work. No attribute observer, no setInterval — both were causing the window to hang during hydration.
 
-Selectors target `.epitaxy-markdown` (prose wrapper around assistant turns) and `.epitaxy-chat-column` (the centered column that gets capped at 1000 px).
+Selectors target `.prose` (markdown wrapper around assistant turns) and `.epitaxy-transcript-width` (the per-turn column that gets capped at 1000 px). Anthropic renamed these from `.epitaxy-markdown` / `.epitaxy-chat-column` in a claude.ai update; re-run the inspector and update them again if the prose stops picking up serif.
 
 ## One-time setup
 

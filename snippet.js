@@ -14,13 +14,13 @@
     "line-height":"1.7"
   };
   const RULES=[
-    {sel:".epitaxy-markdown p",
+    {sel:".prose p",
      props:PROSE_FONT,mark:"__sA"},
-    {sel:".epitaxy-markdown li",
+    {sel:".prose li",
      props:PROSE_FONT,mark:"__sAL"},
-    {sel:".epitaxy-markdown :is(h1,h2,h3,h4,h5,h6)",
+    {sel:".prose :is(h1,h2,h3,h4,h5,h6)",
      props:Object.assign({},PROSE_FONT,{"font-weight":"600"}),mark:"__sAH"},
-    {sel:".epitaxy-chat-column",
+    {sel:".epitaxy-transcript-width",
      props:{"max-width":"1000px","margin-left":"auto","margin-right":"auto"},
      mark:"__sB"}
   ];

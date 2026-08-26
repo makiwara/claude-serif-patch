@@ -3,28 +3,23 @@
  * CSS alone does NOT win against claude.ai's own utilities even at user origin,
  * which is why snippet.js applies these inline via setProperty('important').
  * These rules are kept here as a defence-in-depth fallback. */
-.epitaxy-markdown p,
-.epitaxy-markdown li,
-.epitaxy-markdown :is(h1, h2, h3, h4, h5, h6),
-.epitaxy-chat-column p,
-.epitaxy-chat-column li,
-.epitaxy-chat-column :is(h1, h2, h3, h4, h5, h6) {
+.prose p,
+.prose li,
+.prose :is(h1, h2, h3, h4, h5, h6) {
   font-family: var(--font-serif, "Anthropic Serif", Georgia, serif) !important;
   font-size: 15px !important;
   line-height: 1.7 !important;
 }
 
 /* Keep inline code and pre monospace even inside serif-forced paragraphs/lists. */
-.epitaxy-markdown code,
-.epitaxy-markdown pre,
-.epitaxy-chat-column code,
-.epitaxy-chat-column pre,
+.prose code,
+.prose pre,
 .text-code,
 code.text-code {
   font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace !important;
 }
 
-.epitaxy-chat-column {
+.epitaxy-transcript-width {
   max-width: 1000px !important;
   margin-left: auto !important;
   margin-right: auto !important;

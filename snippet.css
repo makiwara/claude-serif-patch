@@ -29,8 +29,12 @@ code.text-code {
  * grey + right). Scoped under .epitaxy-user-turn (the turn wrapper). */
 .epitaxy-user-turn {
   align-self: flex-start !important;
+  align-items: flex-start !important;
   margin-left: 0 !important;
+  margin-inline-start: 0 !important;
   margin-right: auto !important;
+  /* Bubble bg is bg-[var(--cds-bg-user-message)] now; override the var. */
+  --cds-bg-user-message: #edf3fa !important;
 }
 .epitaxy-user-turn > div {
   align-items: flex-start !important;
@@ -50,6 +54,7 @@ code.text-code {
   background-color: #edf3fa !important;
   color: #125c9c !important;
 }
-.epitaxy-user-turn .text-body {
+.epitaxy-user-turn .text-body,
+.epitaxy-user-turn .text-primary {
   color: #125c9c !important;
 }

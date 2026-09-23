@@ -38,6 +38,22 @@ trap 'rm -rf "$WORK"' EXIT
 echo "[1/9] extracting asar"
 node "$ASAR_BIN" extract "$ASAR" "$WORK/app"
 
+# Mirror the original asar's unpacked set exactly (native modules, helper
+# executables, dylibs, bundled MCP server binaries…) so nothing that must live
+# on disk ends up packed inside the archive on repack.
+UNPACK_GLOB="$(node -e "
+  const a = require('$ASAR_LIB/lib/asar.js');
+  const out = [];
+  (function walk(n, p) {
+    for (const [k, v] of Object.entries(n.files || {})) {
+      const q = p ? p + '/' + k : k;
+      if (v.files) walk(v, q); else if (v.unpacked) out.push('**/' + q);
+    }
+  })(a.getRawHeader('$ASAR').header, '');
+  out.push('**/*.node', '**/spawn-helper');
+  console.log('{' + [...new Set(out)].join(',') + '}');
+")"
+
 MAINVIEW="$WORK/app/.vite/build/mainView.js"
 [ -f "$MAINVIEW" ] || { echo "error: mainView.js missing after extract" >&2; exit 1; }
 
@@ -63,7 +79,7 @@ echo "[4/9] quitting Claude if running"
 pkill -x Claude 2>/dev/null || true
 
 echo "[5/9] repacking asar"
-node "$ASAR_BIN" pack "$WORK/app" "$WORK/app.asar.new" --unpack "{**/*.node,**/spawn-helper}"
+node "$ASAR_BIN" pack "$WORK/app" "$WORK/app.asar.new" --unpack "$UNPACK_GLOB"
 
 echo "[6/9] computing new ASAR header hash"
 NEW_HASH="$(node -e "

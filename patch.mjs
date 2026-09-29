@@ -23,7 +23,7 @@ const MARKER_INSPECT = '=== diagnostic panel: double-click';
 
 let working = fs.readFileSync(target, 'utf8');
 let hadSerif   = working.includes(MARKER_SERIF);
-let hadInspect = working.includes(MARKER_INSPECT);
+let hadInspect = working.includes('=== diagnostic ');
 
 if (FORCE) {
   if (hadSerif) {
@@ -45,8 +45,9 @@ if (FORCE) {
   }
   if (hadInspect) {
     const before = working;
+    // Any "=== diagnostic" block (inspector, or a one-off probe from an older run).
     working = working.replace(
-      /\n?\/\* === diagnostic panel[\s\S]*?\n\}\)\(\);\n?/,
+      /\n?\/\* === diagnostic [\s\S]*?\n\}\)\(\);\n?/g,
       ''
     );
     if (working !== before) {

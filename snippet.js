@@ -13,6 +13,7 @@
     "font-size":"15px",
     "line-height":"1.7"
   };
+  const U=".epitaxy-chat-panel [data-cds=UserMessage]";
   const RULES=[
     {sel:".prose p",
      props:PROSE_FONT,mark:"__sA"},
@@ -20,42 +21,38 @@
      props:PROSE_FONT,mark:"__sAL"},
     {sel:".prose :is(h1,h2,h3,h4,h5,h6)",
      props:Object.assign({},PROSE_FONT,{"font-weight":"600"}),mark:"__sAH"},
-    {sel:".epitaxy-transcript-width",
-     props:{"max-width":"1000px","margin-left":"auto","margin-right":"auto"},
+    // Transcript column: .epitaxy-transcript-width is gone. Columns
+    // ([data-epitaxy-chat-column]) now size via --max-content-width, which
+    // falls back through var(--chat-column-measure, 768/960/1280px) per the
+    // native transcript-width setting. Set the measure once on the Code-tab
+    // root; surfaces that set their own measure (overview rail, empty state)
+    // still override it locally.
+    {sel:".epitaxy-root",
+     props:{"--chat-column-measure":"1000px"},
      mark:"__sB"},
-    // User turns: restore blue bubble, left-aligned (claude.ai now renders
-    // them grey + right). .epitaxy-user-turn (turn wrapper) is the stable
-    // anchor; the bubble carries .bg-neutral, the row aligns right via
-    // items-end + ms-auto.
-    // ms-auto + items-end now sit on .epitaxy-user-turn itself (claude.ai moved
-    // them off the descendant row). The turn is flex-col, so items-end is what
-    // right-aligns the bubble — override align-items here, on the element.
-    {sel:".epitaxy-user-turn",
-     props:{"align-self":"flex-start","align-items":"flex-start","margin-left":"0","margin-inline-start":"0","margin-right":"auto",
-            // Bubble bg is now bg-[var(--cds-bg-user-message)] (was .bg-neutral).
-            // Override the variable on the turn; it inherits to the bubble.
+    // User messages: restore blue bubble, left-aligned (claude.ai renders them
+    // grey + right). The Code tab now uses the shared UserMessage component
+    // (.epitaxy-user-turn is gone): the row is [data-cds=UserMessage] with
+    // ms-auto + items-end, the bubble is bg-[var(--cds-bg-user-message)]
+    // text-primary. Scoped to .epitaxy-chat-panel so claude.ai chat is untouched.
+    {sel:U,
+     props:{"align-items":"flex-start","margin-left":"0","margin-inline-start":"0","margin-right":"auto",
+            // Inherits to the bubble's bg-[var(--cds-bg-user-message)].
             "--cds-bg-user-message":"#edf3fa"},
      mark:"__sU"},
-    {sel:".epitaxy-user-turn > div",
-     props:{"align-items":"flex-start","margin-inline-start":"0","margin-left":"0"},
-     mark:"__sUR"},
-    // Neutralize any right-pushing utility anywhere in the turn (covers
-    // attachment rows, which live in a different subtree than the text row).
-    {sel:".epitaxy-user-turn .ms-auto",
+    // Neutralize any right-pushing utility inside the message (attachment and
+    // reaction rows; also matches variants like [...]:justify-end).
+    {sel:U+" .ms-auto",
      props:{"margin-inline-start":"0","margin-left":"0"},mark:"__sUM"},
-    {sel:".epitaxy-user-turn .items-end",
+    {sel:U+" .items-end",
      props:{"align-items":"flex-start"},mark:"__sUE"},
-    {sel:".epitaxy-user-turn .justify-end",
+    {sel:U+' [class*="justify-end"]',
      props:{"justify-content":"flex-start"},mark:"__sUJ"},
-    {sel:".epitaxy-user-turn .self-end",
+    {sel:U+" .self-end",
      props:{"align-self":"flex-start"},mark:"__sUS"},
-    {sel:".epitaxy-user-turn .bg-neutral",
-     props:{"background-color":"#edf3fa","color":"#125c9c"},
-     mark:"__sUB"},
-    {sel:".epitaxy-user-turn .text-body",
-     props:{"color":"#125c9c"},mark:"__sUT"},
-    // Bubble text is now .text-primary (was .text-body); color it blue too.
-    {sel:".epitaxy-user-turn .text-primary",
+    {sel:U+" .bg-neutral",
+     props:{"background-color":"#edf3fa"},mark:"__sUB"},
+    {sel:U+" .text-primary",
      props:{"color":"#125c9c"},mark:"__sUP"}
   ];
   let pending=false;

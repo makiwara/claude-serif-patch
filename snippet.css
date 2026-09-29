@@ -19,42 +19,29 @@ code.text-code {
   font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace !important;
 }
 
-.epitaxy-transcript-width {
-  max-width: 1000px !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
+/* Transcript column measure (feeds --max-content-width on [data-epitaxy-chat-column]). */
+.epitaxy-root {
+  --chat-column-measure: 1000px !important;
 }
 
-/* User turns: restore blue bubble, left-aligned (claude.ai now renders them
- * grey + right). Scoped under .epitaxy-user-turn (the turn wrapper). */
-.epitaxy-user-turn {
-  align-self: flex-start !important;
+/* User messages: restore blue bubble, left-aligned (claude.ai renders them
+ * grey + right). Row is [data-cds=UserMessage] (ms-auto + items-end), bubble is
+ * bg-[var(--cds-bg-user-message)] text-primary. Scoped to the Code-tab panel. */
+.epitaxy-chat-panel [data-cds=UserMessage] {
   align-items: flex-start !important;
   margin-left: 0 !important;
   margin-inline-start: 0 !important;
   margin-right: auto !important;
-  /* Bubble bg is bg-[var(--cds-bg-user-message)] now; override the var. */
   --cds-bg-user-message: #edf3fa !important;
 }
-.epitaxy-user-turn > div {
-  align-items: flex-start !important;
+/* Neutralize right-pushing utilities inside the message (attachment and
+ * reaction rows; [class*=justify-end] also catches variant classes). */
+.epitaxy-chat-panel [data-cds=UserMessage] .ms-auto {
   margin-inline-start: 0 !important;
   margin-left: 0 !important;
 }
-/* Neutralize right-pushing utilities anywhere in the turn (e.g. attachment
- * rows, which sit in a different subtree than the text bubble). */
-.epitaxy-user-turn .ms-auto {
-  margin-inline-start: 0 !important;
-  margin-left: 0 !important;
-}
-.epitaxy-user-turn .items-end { align-items: flex-start !important; }
-.epitaxy-user-turn .justify-end { justify-content: flex-start !important; }
-.epitaxy-user-turn .self-end { align-self: flex-start !important; }
-.epitaxy-user-turn .bg-neutral {
-  background-color: #edf3fa !important;
-  color: #125c9c !important;
-}
-.epitaxy-user-turn .text-body,
-.epitaxy-user-turn .text-primary {
-  color: #125c9c !important;
-}
+.epitaxy-chat-panel [data-cds=UserMessage] .items-end { align-items: flex-start !important; }
+.epitaxy-chat-panel [data-cds=UserMessage] [class*="justify-end"] { justify-content: flex-start !important; }
+.epitaxy-chat-panel [data-cds=UserMessage] .self-end { align-self: flex-start !important; }
+.epitaxy-chat-panel [data-cds=UserMessage] .bg-neutral { background-color: #edf3fa !important; }
+.epitaxy-chat-panel [data-cds=UserMessage] .text-primary { color: #125c9c !important; }
